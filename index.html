@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🐈 whisper.ai 奶茶貓貓 UI v6.3</title>
+  <title>🐈 whisper.ai 奶茶貓貓 UI v6.3.1</title>
 
   <style>
     :root{
@@ -342,6 +342,7 @@
       justify-content:flex-end;
     }
 
+    .msg.assistant,
     .msg.ai{
       justify-content:flex-start;
     }
@@ -387,6 +388,7 @@
       box-shadow:0 10px 22px rgba(0,0,0,0.04);
     }
 
+    .msg.assistant .bubble,
     .msg.ai .bubble{
       background:var(--bubble-ai);
       border:1px solid var(--bubble-ai-border);
@@ -588,7 +590,7 @@
   <div id="sidebar">
     <div id="brand-card">
       <div id="brand-top">🐈 whisper.ai</div>
-      <div id="brand-sub">奶茶貓貓 UI v6.3<br>可愛、軟呼呼、但還是能做工程喵。</div>
+      <div id="brand-sub">奶茶貓貓 UI v6.3.1<br>可愛、軟呼呼、但還是能做工程喵。</div>
     </div>
 
     <button id="new-chat" class="primary-btn" onclick="newChat()">➕ 開新聊天</button>
@@ -661,7 +663,7 @@
 
       <div class="current-prompt">目前編輯中：<span id="currentPromptName">未選擇</span></div>
       <div class="tiny-note">
-        這版沿用你原本的前端直連 API 方式。若之後想做得更安全，再幫你改成後端 proxy 版喵。
+        這版沿用前端直連 API 方式。之後若要更安全，可以再改成後端 proxy。
       </div>
     </div>
   </div>
@@ -694,6 +696,21 @@
     if (!Array.isArray(chats) || chats.length === 0) chats = [[]];
     if (!chats[currentChat]) currentChat = 0;
     if (!PROMPTS[currentPrompt]) currentPrompt = Object.keys(PROMPTS)[0] || "";
+
+    function normalizeStoredRole(role){
+      if (role === "ai") return "assistant";
+      if (role === "assistant") return "assistant";
+      if (role === "user") return "user";
+      if (role === "system") return "system";
+      if (role === "developer") return "developer";
+      if (role === "tool") return "tool";
+      if (role === "function") return "function";
+      return "user";
+    }
+
+    function isAssistantRole(role){
+      return role === "assistant" || role === "ai";
+    }
 
     function saveChats(){
       localStorage.setItem("CHATS", JSON.stringify(chats));
@@ -851,7 +868,7 @@
         return "新聊天 " + (index + 1);
       }
 
-      const firstUser = chat.find(m => m.role === "user" && m.text && m.text.trim());
+      const firstUser = chat.find(m => normalizeStoredRole(m.role) === "user" && m.text && m.text.trim());
       if (!firstUser) return "聊天 " + (index + 1);
 
       const text = firstUser.text.replace(/\n/g, " ").trim();
@@ -915,20 +932,21 @@
 
     function renderSingleMessage(text, role, thinking = false){
       const chatBox = document.getElementById("chat");
+      const uiRole = isAssistantRole(role) ? "assistant" : role;
 
       const msg = document.createElement("div");
-      msg.className = "msg " + role + (thinking ? " thinking" : "");
+      msg.className = "msg " + uiRole + (thinking ? " thinking" : "");
 
       const avatar = document.createElement("div");
       avatar.className = "avatar";
-      avatar.textContent = role === "user" ? "🧋" : "🐈";
+      avatar.textContent = uiRole === "user" ? "🧋" : "🐈";
 
       const wrap = document.createElement("div");
       wrap.className = "bubble-wrap";
 
       const meta = document.createElement("div");
       meta.className = "meta";
-      meta.textContent = role === "user" ? "你" : "whisper.ai";
+      meta.textContent = uiRole === "user" ? "你" : "whisper.ai";
 
       const bubble = document.createElement("div");
       bubble.className = "bubble";
@@ -958,7 +976,7 @@
       }
 
       current.forEach(msg => {
-        renderSingleMessage(msg.text, msg.role, false);
+        renderSingleMessage(msg.text, normalizeStoredRole(msg.role), false);
       });
 
       renderChatList();
@@ -966,7 +984,8 @@
     }
 
     function addMessage(text, role){
-      getCurrentChat().push({ role, text });
+      const normalizedRole = normalizeStoredRole(role);
+      getCurrentChat().push({ role: normalizedRole, text });
       saveChats();
       renderCurrentChat();
     }
@@ -997,6 +1016,27 @@
       input.style.height = Math.min(input.scrollHeight, 180) + "px";
     }
 
+    function buildApiMessages(chatMessages){
+      const result = [];
+
+      if (currentPrompt && PROMPTS[currentPrompt]){
+        result.push({
+          role: "system",
+          content: PROMPTS[currentPrompt]
+        });
+      }
+
+      for (const msg of chatMessages){
+        const apiRole = normalizeStoredRole(msg.role);
+        result.push({
+          role: apiRole,
+          content: msg.text
+        });
+      }
+
+      return result;
+    }
+
     async function send(){
       if (isSending) return;
 
@@ -1019,26 +1059,10 @@
       input.value = "";
       autoResizeTextarea();
 
-      const chatBox = document.getElementById("chat");
-      const thinkingNode = renderSingleMessage("🐈‍⬛ 正在把珍珠攪一攪，等我一下喵…", "ai", true);
+      const currentMessages = getCurrentChat().slice();
+      const thinkingNode = renderSingleMessage("🐈‍⬛ 正在把珍珠攪一攪，等我一下喵…", "assistant", true);
 
       try{
-        const messages = [];
-
-        if (currentPrompt && PROMPTS[currentPrompt]){
-          messages.push({
-            role: "system",
-            content: PROMPTS[currentPrompt]
-          });
-        }
-
-        for (const msg of getCurrentChat()){
-          messages.push({
-            role: msg.role,
-            content: msg.text
-          });
-        }
-
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -1047,7 +1071,7 @@
           },
           body: JSON.stringify({
             model: MODEL_NAME,
-            messages: messages
+            messages: buildApiMessages(currentMessages)
           })
         });
 
@@ -1060,10 +1084,10 @@
         }
 
         const reply = data?.choices?.[0]?.message?.content?.trim() || "沒有回應喵";
-        addMessage(reply, "ai");
+        addMessage(reply, "assistant");
       }catch(err){
         thinkingNode.remove();
-        addMessage("出錯了喵：\n" + (err.message || "未知錯誤"), "ai");
+        addMessage("出錯了喵：\n" + (err.message || "未知錯誤"), "assistant");
       }finally{
         isSending = false;
         sendBtn.disabled = false;
