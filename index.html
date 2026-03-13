@@ -2,75 +2,83 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>🐈 whisper.ai</title>
+<title>🐈 whisper.ai v6.1</title>
 
 <style>
 
 :root{
 --bg:#0b0b10;
+--sidebar:#11111a;
 --bubble-user:#8c7cff;
 --bubble-ai:#2c2c3a;
---btn:#a594ff;
---accent:#c8bfff;
---divider:#2a2a35;
+--accent:#a594ff;
 }
 
 body{
 margin:0;
+font-family:system-ui;
 background:var(--bg);
 color:white;
-font-family:system-ui;
+display:flex;
+height:100vh;
 }
 
 body.pink{
 --bg:#1a0f14;
+--sidebar:#2a1a22;
 --bubble-user:#ffb6d5;
 --bubble-ai:#ffddee;
---btn:#ff9ac6;
---accent:#ffd1e6;
---divider:#3a2630;
+--accent:#ff9ac6;
 }
 
-#topbar{
+#sidebar{
+width:230px;
+background:var(--sidebar);
+border-right:1px solid #333;
 display:flex;
-justify-content:space-between;
-align-items:center;
-padding:12px 18px;
-border-bottom:1px solid var(--divider);
-font-weight:bold;
-}
-
-#controls button{
-margin-left:6px;
-}
-
-button{
-background:linear-gradient(135deg,var(--btn),var(--accent));
-border:none;
-border-radius:12px;
-padding:6px 10px;
-cursor:pointer;
-color:white;
-}
-
-#prompt-buttons{
+flex-direction:column;
 padding:10px;
-border-bottom:1px solid var(--divider);
 }
 
-#prompt-buttons button{
+#sidebar button{
+margin-bottom:6px;
+border:none;
+border-radius:8px;
+padding:6px;
+background:var(--accent);
+color:white;
+cursor:pointer;
+}
+
+#chatlist{
+flex:1;
+overflow:auto;
+}
+
+#main{
+flex:1;
+display:flex;
+flex-direction:column;
+}
+
+#promptbar{
+padding:10px;
+border-bottom:1px solid #333;
+}
+
+#promptbar button{
 margin-right:6px;
 }
 
 #chat{
-height:60vh;
+flex:1;
 overflow:auto;
 padding:20px;
 }
 
 .msg{
-margin:10px 0;
 display:flex;
+margin:8px 0;
 }
 
 .msg.user{
@@ -78,8 +86,8 @@ justify-content:flex-end;
 }
 
 .bubble{
-padding:12px 16px;
-border-radius:16px;
+padding:10px 14px;
+border-radius:12px;
 max-width:60%;
 }
 
@@ -93,41 +101,35 @@ background:var(--bubble-ai);
 
 #inputbar{
 display:flex;
-padding:12px;
-border-top:1px solid var(--divider);
+padding:10px;
+border-top:1px solid #333;
 }
 
 #input{
 flex:1;
-padding:10px;
-border-radius:12px;
+padding:8px;
+border-radius:8px;
 border:none;
 }
 
 #send{
-margin-left:10px;
-}
-
-#prompt-editor{
-width:100%;
-height:80px;
-margin-top:10px;
-background:#1e1e2a;
-color:white;
-border:none;
-padding:10px;
-border-radius:10px;
+margin-left:6px;
 }
 
 #settings{
 position:fixed;
 right:20px;
-top:70px;
-background:#161622;
+top:60px;
+background:#1b1b26;
 padding:20px;
-border-radius:12px;
+border-radius:10px;
 display:none;
 width:300px;
+}
+
+textarea{
+width:100%;
+height:80px;
 }
 
 </style>
@@ -135,84 +137,72 @@ width:300px;
 
 <body>
 
-<div id="topbar">
+<div id="sidebar">
 
-🐈 whisper.ai
+<button onclick="newChat()">➕ 新聊天</button>
 
-<div id="controls">
+<div id="chatlist"></div>
 
-<button onclick="setTheme('dark')">🌙</button>
-<button onclick="setTheme('pink')">🧋</button>
-
-<button onclick="fontDown()">A-</button>
-<button onclick="fontReset()">A</button>
-<button onclick="fontUp()">A+</button>
-
-<button onclick="toggleSettings()">⚙️</button>
+<button onclick="toggleTheme()">🧋主題</button>
+<button onclick="toggleSettings()">⚙️ 設定</button>
 
 </div>
 
-</div>
+<div id="main">
 
-<div id="prompt-buttons"></div>
+<div id="promptbar"></div>
 
 <div id="chat"></div>
 
 <div id="inputbar">
+
 <input id="input" placeholder="喵～說點什麼">
+
 <button id="send">🐾</button>
+
+</div>
+
 </div>
 
 <div id="settings">
 
-<h3>編輯 Prompt</h3>
+<div>OpenAI API Key</div>
+<input id="apiKey" placeholder="sk-...">
 
-<textarea id="prompt-editor"></textarea>
+<button onclick="saveApi()">儲存</button>
 
-<button onclick="savePrompt()">儲存</button>
-<button onclick="clearChat()">清空聊天</button>
-<button onclick="toggleSettings()">關閉</button>
+<hr>
+
+<div>Prompt 編輯</div>
+
+<textarea id="promptEditor"></textarea>
+
+<button onclick="savePrompt()">儲存 Prompt</button>
 
 </div>
 
 <script>
 
-const PROMPTS={
-"劇場":"你是一個劇場型 AI，會加入動作與情緒描寫。",
-"工程師":"你是一個冷靜工程師，回答精準。",
-"吐槽":"你是一個毒舌 AI，喜歡吐槽。"
+let API_KEY = localStorage.getItem("OPENAI_KEY") || ""
+
+let PROMPTS = JSON.parse(localStorage.getItem("PROMPTS")) || {
+"劇場":"你是一個劇場型 AI。",
+"工程師":"你是一個冷靜工程師。",
+"吐槽":"你是一個毒舌 AI。"
 }
 
-let SYSTEM_PROMPT=""
+let currentPrompt = ""
 
-function buildPromptButtons(){
+let chats = JSON.parse(localStorage.getItem("CHATS")) || []
+let currentChat = 0
 
-let box=document.getElementById("prompt-buttons")
+function saveApi(){
 
-for(let key in PROMPTS){
+API_KEY=document.getElementById("apiKey").value
 
-let b=document.createElement("button")
-b.textContent=key
-b.onclick=()=>selectPrompt(key)
+localStorage.setItem("OPENAI_KEY",API_KEY)
 
-box.appendChild(b)
-
-}
-
-}
-
-function selectPrompt(name){
-
-SYSTEM_PROMPT=PROMPTS[name]
-
-document.getElementById("prompt-editor").value=SYSTEM_PROMPT
-
-}
-
-function savePrompt(){
-
-SYSTEM_PROMPT=document.getElementById("prompt-editor").value
-localStorage.setItem("prompt",SYSTEM_PROMPT)
+alert("API 已儲存")
 
 }
 
@@ -220,13 +210,75 @@ function toggleSettings(){
 
 let s=document.getElementById("settings")
 
-s.style.display=s.style.display=="block"?"none":"block"
+s.style.display = s.style.display=="block"?"none":"block"
 
 }
 
-function clearChat(){
+function toggleTheme(){
 
-document.getElementById("chat").innerHTML=""
+document.body.classList.toggle("pink")
+
+}
+
+function buildPromptBar(){
+
+let bar=document.getElementById("promptbar")
+
+bar.innerHTML=""
+
+for(let name in PROMPTS){
+
+let b=document.createElement("button")
+
+b.textContent=name
+
+b.onclick=()=>selectPrompt(name)
+
+bar.appendChild(b)
+
+}
+
+let add=document.createElement("button")
+
+add.textContent="➕"
+
+add.onclick=addPrompt
+
+bar.appendChild(add)
+
+}
+
+function selectPrompt(name){
+
+currentPrompt=name
+
+document.getElementById("promptEditor").value=PROMPTS[name]
+
+}
+
+function savePrompt(){
+
+if(!currentPrompt)return
+
+PROMPTS[currentPrompt]=document.getElementById("promptEditor").value
+
+localStorage.setItem("PROMPTS",JSON.stringify(PROMPTS))
+
+alert("Prompt 已更新")
+
+}
+
+function addPrompt(){
+
+let name=prompt("Prompt 名稱")
+
+if(!name)return
+
+PROMPTS[name]="新的 prompt"
+
+localStorage.setItem("PROMPTS",JSON.stringify(PROMPTS))
+
+buildPromptBar()
 
 }
 
@@ -235,10 +287,13 @@ function addMessage(text,role){
 let chat=document.getElementById("chat")
 
 let m=document.createElement("div")
+
 m.className="msg "+role
 
 let b=document.createElement("div")
+
 b.className="bubble"
+
 b.textContent=text
 
 m.appendChild(b)
@@ -249,11 +304,11 @@ chat.scrollTop=chat.scrollHeight
 
 }
 
-document.getElementById("send").onclick=async()=>{
+async function send(){
 
 let input=document.getElementById("input")
 
-let text=input.value
+let text=input.value.trim()
 
 if(!text)return
 
@@ -261,53 +316,81 @@ addMessage(text,"user")
 
 input.value=""
 
-addMessage("🐈‍⬛💭 thinking...","ai")
+addMessage("🐈‍⬛ thinking...","ai")
+
+let res=await fetch("https://api.openai.com/v1/chat/completions",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+API_KEY
+},
+
+body:JSON.stringify({
+model:"gpt-4o-mini",
+messages:[
+{role:"system",content:PROMPTS[currentPrompt]||""},
+{role:"user",content:text}
+]
+})
+
+})
+
+let data=await res.json()
+
+document.querySelector("#chat .msg:last-child").remove()
+
+let reply=data.choices?.[0]?.message?.content || "沒有回應"
+
+addMessage(reply,"ai")
 
 }
 
-function setTheme(name){
+document.getElementById("send").onclick=send
 
-document.body.classList.remove("pink")
+function newChat(){
 
-if(name=="pink")document.body.classList.add("pink")
+chats.push([])
 
-localStorage.setItem("theme",name)
+currentChat=chats.length-1
 
-}
+renderChatList()
 
-function loadTheme(){
-
-let t=localStorage.getItem("theme")
-
-if(t=="pink")document.body.classList.add("pink")
+document.getElementById("chat").innerHTML=""
 
 }
 
-let fontSize=16
+function renderChatList(){
 
-function fontUp(){
+let box=document.getElementById("chatlist")
 
-fontSize+=2
-document.body.style.fontSize=fontSize+"px"
+box.innerHTML=""
 
-}
+chats.forEach((c,i)=>{
 
-function fontDown(){
+let b=document.createElement("button")
 
-fontSize-=2
-document.body.style.fontSize=fontSize+"px"
+b.textContent="聊天 "+(i+1)
 
-}
+b.onclick=()=>loadChat(i)
 
-function fontReset(){
+box.appendChild(b)
 
-fontSize=16
-document.body.style.fontSize="16px"
+})
 
 }
 
-buildPromptButtons()
-loadTheme()
+function loadChat(i){
+
+currentChat=i
+
+document.getElementById("chat").innerHTML=""
+
+}
+
+buildPromptBar()
+renderChatList()
 
 </script>
 
