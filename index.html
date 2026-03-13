@@ -1,31 +1,56 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>whisper.ai</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>🐈 whisper.ai</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 
 body{
 margin:0;
-background:#0b0b0f;
+background:#0b0b10;
 color:white;
-font-family:-apple-system,BlinkMacSystemFont;
+font-family:
+"Noto Sans TC",
+-apple-system,
+BlinkMacSystemFont,
+"PingFang TC",
+"Microsoft JhengHei",
+sans-serif;
 display:flex;
 flex-direction:column;
 height:100vh;
+font-size:16px;
+line-height:1.6;
+letter-spacing:.02em;
+font-variant-east-asian:traditional;
 }
 
 #topbar{
 display:flex;
 justify-content:space-between;
+align-items:center;
 padding:14px 18px;
-border-bottom:1px solid #2b2b35;
+border-bottom:1px solid #2a2a35;
 }
 
 .title{
 font-weight:600;
+}
+
+.font-controls button{
+background:#1c1c25;
+border:none;
+color:white;
+border-radius:6px;
+padding:4px 8px;
+margin-right:4px;
+cursor:pointer;
 }
 
 #messages{
@@ -48,14 +73,14 @@ flex-direction:row-reverse;
 
 .bubble{
 padding:14px 18px;
-border-radius:22px;
+border-radius:26px;
 max-width:75%;
-backdrop-filter:blur(12px);
+backdrop-filter:blur(14px);
 box-shadow:0 10px 30px rgba(0,0,0,.4);
 }
 
 .msg.user .bubble{
-background:rgba(100,80,200,.6);
+background:rgba(120,100,255,.65);
 }
 
 .msg.ai .bubble{
@@ -64,7 +89,7 @@ background:rgba(40,40,55,.7);
 
 #inputbar{
 padding:12px;
-border-top:1px solid #2b2b35;
+border-top:1px solid #2a2a35;
 display:flex;
 gap:8px;
 }
@@ -74,7 +99,7 @@ flex:1;
 padding:12px;
 border-radius:16px;
 border:none;
-background:#1c1c22;
+background:#1c1c25;
 color:white;
 font-size:15px;
 }
@@ -84,7 +109,7 @@ width:44px;
 height:44px;
 border:none;
 border-radius:14px;
-background:#9b8cff;
+background:linear-gradient(135deg,#a594ff,#c8bfff);
 font-size:20px;
 cursor:pointer;
 }
@@ -95,9 +120,9 @@ transform:scale(.9);
 
 #thinking-cat{
 position:fixed;
-left:10px;
+left:12px;
 bottom:110px;
-font-size:32px;
+font-size:34px;
 opacity:0;
 }
 
@@ -108,24 +133,24 @@ animation:run 1s infinite;
 
 @keyframes run{
 0%{transform:translateX(0)}
-50%{transform:translateX(8px)}
+50%{transform:translateX(10px)}
 100%{transform:translateX(0)}
 }
 
 #empty{
 text-align:center;
 margin-top:80px;
-opacity:.5;
+opacity:.6;
 }
 
 .sleep{
-font-size:40px;
+font-size:44px;
 animation:tail 3s infinite;
 }
 
 @keyframes tail{
 0%{transform:rotate(0)}
-50%{transform:rotate(5deg)}
+50%{transform:rotate(6deg)}
 100%{transform:rotate(0)}
 }
 
@@ -142,7 +167,7 @@ justify-content:center;
 }
 
 #settingsCard{
-background:#16161d;
+background:#16161f;
 padding:20px;
 border-radius:16px;
 width:320px;
@@ -153,7 +178,7 @@ gap:10px;
 
 #settingsCard input,
 #settingsCard textarea{
-background:#1e1e28;
+background:#1f1f2b;
 border:none;
 padding:8px;
 color:white;
@@ -174,17 +199,31 @@ cursor:pointer;
 <body>
 
 <div id="topbar">
-<div class="title">whisper.ai</div>
-<div>
+
+<div class="title">🐈 whisper.ai</div>
+
+<div class="font-controls">
+
+<button onclick="fontDown()">A-</button>
+<button onclick="fontReset()">A</button>
+<button onclick="fontUp()">A+</button>
+
 <span onclick="openSettings()">⚙️</span>
+
 </div>
+
 </div>
 
 <div id="messages">
 
 <div id="empty">
+
 <div class="sleep">😼</div>
+
 <p>等你說話喵</p>
+
+<div>🐟</div>
+
 </div>
 
 </div>
@@ -192,11 +231,15 @@ cursor:pointer;
 <div id="thinking-cat">🐈‍⬛</div>
 
 <div id="inputbar">
-<input id="user-input" placeholder="說點什麼喵…" />
+
+<input id="user-input" placeholder="跟貓聊點什麼喵…">
+
 <button id="send-btn">🐾</button>
+
 </div>
 
 <div id="settingsModal">
+
 <div id="settingsCard">
 
 <h3>設定</h3>
@@ -211,10 +254,13 @@ cursor:pointer;
 <input id="model">
 
 <button onclick="saveSettings()">儲存</button>
+
 <button onclick="exportChat()">匯出聊天</button>
+
 <button onclick="closeSettings()">關閉</button>
 
 </div>
+
 </div>
 
 <script>
@@ -237,6 +283,7 @@ function addMsg(role,text,save=true){
 document.getElementById("empty")?.remove()
 
 const div=document.createElement("div")
+
 div.className="msg "+role
 
 const avatar=role==="user"?"😼":"🐱"
@@ -246,6 +293,7 @@ div.innerHTML=
 "<div class='bubble'>"+text+"</div>"
 
 messagesEl.appendChild(div)
+
 messagesEl.scrollTop=messagesEl.scrollHeight
 
 if(save){
@@ -258,11 +306,16 @@ localStorage.setItem("CHAT_HISTORY",JSON.stringify(history))
 async function send(){
 
 const text=input.value.trim()
+
 if(!text) return
 
 addMsg("user",text)
 
 input.value=""
+
+sendBtn.textContent="🐾✨"
+
+setTimeout(()=>sendBtn.textContent="🐾",200)
 
 cat.classList.add("show")
 
@@ -355,9 +408,48 @@ const blob=new Blob(
 )
 
 const a=document.createElement("a")
+
 a.href=URL.createObjectURL(blob)
+
 a.download="chat.json"
+
 a.click()
+
+}
+
+let fontSize = localStorage.getItem("FONT_SIZE") || 16
+
+document.body.style.fontSize=fontSize+"px"
+
+function fontUp(){
+
+fontSize++
+
+applyFont()
+
+}
+
+function fontDown(){
+
+fontSize--
+
+applyFont()
+
+}
+
+function fontReset(){
+
+fontSize=16
+
+applyFont()
+
+}
+
+function applyFont(){
+
+document.body.style.fontSize=fontSize+"px"
+
+localStorage.setItem("FONT_SIZE",fontSize)
 
 }
 
