@@ -13,15 +13,7 @@
 
 body{
 margin:0;
-background:#0b0b10;
-color:white;
-font-family:
-"Noto Sans TC",
--apple-system,
-BlinkMacSystemFont,
-"PingFang TC",
-"Microsoft JhengHei",
-sans-serif;
+font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
 display:flex;
 flex-direction:column;
 height:100vh;
@@ -31,19 +23,46 @@ letter-spacing:.02em;
 font-variant-east-asian:traditional;
 }
 
+/* THEMES */
+
+body.dark{
+--bg:#0b0b10;
+--userBubble:rgba(120,100,255,.65);
+--aiBubble:rgba(40,40,55,.7);
+--btn:#a594ff;
+--accent:#c8bfff;
+--divider:#2a2a35;
+}
+
+body.pink{
+--bg:#1a0f14;
+--userBubble:#ffb6d5;
+--aiBubble:#ffddee;
+--btn:#ff9ac6;
+--accent:#ffd1e6;
+--divider:#3a2630;
+}
+
+body{
+background:var(--bg);
+color:white;
+}
+
+/* TOPBAR */
+
 #topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:14px 18px;
-border-bottom:1px solid #2a2a35;
+border-bottom:1px solid var(--divider);
 }
 
 .title{
 font-weight:600;
 }
 
-.font-controls button{
+.controls button{
 background:#1c1c25;
 border:none;
 color:white;
@@ -52,6 +71,27 @@ padding:4px 8px;
 margin-right:4px;
 cursor:pointer;
 }
+
+/* PROMPTS */
+
+#promptBar{
+padding:8px 12px;
+border-bottom:1px solid var(--divider);
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.promptBtn{
+background:var(--btn);
+border:none;
+border-radius:10px;
+padding:4px 10px;
+cursor:pointer;
+font-size:13px;
+}
+
+/* CHAT */
 
 #messages{
 flex:1;
@@ -80,16 +120,18 @@ box-shadow:0 10px 30px rgba(0,0,0,.4);
 }
 
 .msg.user .bubble{
-background:rgba(120,100,255,.65);
+background:var(--userBubble);
 }
 
 .msg.ai .bubble{
-background:rgba(40,40,55,.7);
+background:var(--aiBubble);
 }
+
+/* INPUT */
 
 #inputbar{
 padding:12px;
-border-top:1px solid #2a2a35;
+border-top:1px solid var(--divider);
 display:flex;
 gap:8px;
 }
@@ -109,14 +151,12 @@ width:44px;
 height:44px;
 border:none;
 border-radius:14px;
-background:linear-gradient(135deg,#a594ff,#c8bfff);
+background:linear-gradient(135deg,var(--btn),var(--accent));
 font-size:20px;
 cursor:pointer;
 }
 
-#send-btn:active{
-transform:scale(.9);
-}
+/* THINKING CAT */
 
 #thinking-cat{
 position:fixed;
@@ -137,22 +177,15 @@ animation:run 1s infinite;
 100%{transform:translateX(0)}
 }
 
+/* EMPTY */
+
 #empty{
 text-align:center;
 margin-top:80px;
 opacity:.6;
 }
 
-.sleep{
-font-size:44px;
-animation:tail 3s infinite;
-}
-
-@keyframes tail{
-0%{transform:rotate(0)}
-50%{transform:rotate(6deg)}
-100%{transform:rotate(0)}
-}
+/* SETTINGS */
 
 #settingsModal{
 position:fixed;
@@ -202,33 +235,38 @@ cursor:pointer;
 
 <div class="title">🐈 whisper.ai</div>
 
-<div class="font-controls">
+<div class="controls">
 
 <button onclick="fontDown()">A-</button>
 <button onclick="fontReset()">A</button>
 <button onclick="fontUp()">A+</button>
 
-<span onclick="openSettings()">⚙️</span>
+<button onclick="setTheme('dark')">🌙</button>
+<button onclick="setTheme('pink')">🧋</button>
+
+<button onclick="openSettings()">⚙️</button>
 
 </div>
 
 </div>
+
+<div id="promptBar"></div>
 
 <div id="messages">
 
 <div id="empty">
 
-<div class="sleep">😼</div>
+<div style="font-size:44px">😼</div>
 
 <p>等你說話喵</p>
 
-<div>🐟</div>
+<div>🌸 🌸 🌸</div>
 
 </div>
 
 </div>
 
-<div id="thinking-cat">🐈‍⬛</div>
+<div id="thinking-cat">🐈‍⬛🐟</div>
 
 <div id="inputbar">
 
@@ -247,16 +285,14 @@ cursor:pointer;
 <label>API Key</label>
 <input id="apiKey">
 
-<label>System Prompt</label>
-<textarea id="systemPrompt"></textarea>
-
 <label>Model</label>
 <input id="model">
 
+<label>編輯 Prompt</label>
+<textarea id="promptEdit"></textarea>
+
 <button onclick="saveSettings()">儲存</button>
-
 <button onclick="exportChat()">匯出聊天</button>
-
 <button onclick="closeSettings()">關閉</button>
 
 </div>
@@ -269,13 +305,39 @@ const messagesEl=document.getElementById("messages")
 const input=document.getElementById("user-input")
 const sendBtn=document.getElementById("send-btn")
 const cat=document.getElementById("thinking-cat")
+const promptBar=document.getElementById("promptBar")
 
 let history=JSON.parse(localStorage.getItem("CHAT_HISTORY")||"[]")
 
-function renderHistory(){
-history.forEach(m=>{
-addMsg(m.role,m.content,false)
+let prompts=JSON.parse(localStorage.getItem("PROMPTS")||`{
+"🎭劇場":"你是一個劇場型 AI",
+"🛠工程師":"你是一個冷靜工程師",
+"😈吐槽":"你是一個毒舌 AI"
+}`)
+
+let activePrompt=localStorage.getItem("ACTIVE_PROMPT")||Object.keys(prompts)[0]
+
+function renderPrompts(){
+
+promptBar.innerHTML=""
+
+Object.keys(prompts).forEach(name=>{
+
+const btn=document.createElement("button")
+btn.className="promptBtn"
+btn.textContent=name
+
+btn.onclick=()=>{
+
+activePrompt=name
+localStorage.setItem("ACTIVE_PROMPT",name)
+
+}
+
+promptBar.appendChild(btn)
+
 })
+
 }
 
 function addMsg(role,text,save=true){
@@ -288,17 +350,18 @@ div.className="msg "+role
 
 const avatar=role==="user"?"😼":"🐱"
 
-div.innerHTML=
-"<div>"+avatar+"</div>"+
-"<div class='bubble'>"+text+"</div>"
+div.innerHTML="<div>"+avatar+"</div><div class='bubble'>"+text+"</div>"
 
 messagesEl.appendChild(div)
 
 messagesEl.scrollTop=messagesEl.scrollHeight
 
 if(save){
+
 history.push({role,content:text})
+
 localStorage.setItem("CHAT_HISTORY",JSON.stringify(history))
+
 }
 
 }
@@ -307,7 +370,7 @@ async function send(){
 
 const text=input.value.trim()
 
-if(!text) return
+if(!text)return
 
 addMsg("user",text)
 
@@ -322,30 +385,34 @@ cat.classList.add("show")
 const model=localStorage.getItem("MODEL")||"gpt-4o"
 
 const messages=[
-{role:"system",content:localStorage.getItem("SYSTEM_PROMPT")||""},
+
+{role:"system",content:prompts[activePrompt]},
+
 ...history
+
 ]
 
-const res=await fetch(
-"https://api.openai.com/v1/chat/completions",
-{
+const res=await fetch("https://api.openai.com/v1/chat/completions",{
+
 method:"POST",
+
 headers:{
 "Content-Type":"application/json",
 "Authorization":"Bearer "+localStorage.getItem("OPENAI_KEY")
 },
+
 body:JSON.stringify({
 model,
 messages
 })
-}
-)
+
+})
 
 const data=await res.json()
 
 cat.classList.remove("show")
 
-const reply=data.choices?.[0]?.message?.content || "（沒有回應）"
+const reply=data.choices?.[0]?.message?.content||"（沒有回應）"
 
 addMsg("assistant",reply)
 
@@ -360,52 +427,57 @@ send()
 }
 })
 
+function setTheme(name){
+
+document.body.classList.remove("dark","pink")
+
+document.body.classList.add(name)
+
+localStorage.setItem("THEME",name)
+
+}
+
+function loadTheme(){
+
+let theme=localStorage.getItem("THEME")||"dark"
+
+document.body.classList.add(theme)
+
+}
+
 function openSettings(){
 
 document.getElementById("settingsModal").style.display="flex"
 
-document.getElementById("apiKey").value=
-localStorage.getItem("OPENAI_KEY")||""
+document.getElementById("apiKey").value=localStorage.getItem("OPENAI_KEY")||""
 
-document.getElementById("systemPrompt").value=
-localStorage.getItem("SYSTEM_PROMPT")||""
+document.getElementById("model").value=localStorage.getItem("MODEL")||"gpt-4o"
 
-document.getElementById("model").value=
-localStorage.getItem("MODEL")||"gpt-4o"
+document.getElementById("promptEdit").value=prompts[activePrompt]
 
 }
 
 function closeSettings(){
+
 document.getElementById("settingsModal").style.display="none"
+
 }
 
 function saveSettings(){
 
-localStorage.setItem(
-"OPENAI_KEY",
-document.getElementById("apiKey").value
-)
+localStorage.setItem("OPENAI_KEY",document.getElementById("apiKey").value)
 
-localStorage.setItem(
-"SYSTEM_PROMPT",
-document.getElementById("systemPrompt").value
-)
+localStorage.setItem("MODEL",document.getElementById("model").value)
 
-localStorage.setItem(
-"MODEL",
-document.getElementById("model").value
-)
+prompts[activePrompt]=document.getElementById("promptEdit").value
 
-alert("設定已儲存")
+localStorage.setItem("PROMPTS",JSON.stringify(prompts))
 
 }
 
 function exportChat(){
 
-const blob=new Blob(
-[JSON.stringify(history,null,2)],
-{type:"application/json"}
-)
+const blob=new Blob([JSON.stringify(history,null,2)],{type:"application/json"})
 
 const a=document.createElement("a")
 
@@ -417,33 +489,15 @@ a.click()
 
 }
 
-let fontSize = localStorage.getItem("FONT_SIZE") || 16
+let fontSize=localStorage.getItem("FONT_SIZE")||16
 
 document.body.style.fontSize=fontSize+"px"
 
-function fontUp(){
+function fontUp(){fontSize++;applyFont()}
 
-fontSize++
+function fontDown(){fontSize--;applyFont()}
 
-applyFont()
-
-}
-
-function fontDown(){
-
-fontSize--
-
-applyFont()
-
-}
-
-function fontReset(){
-
-fontSize=16
-
-applyFont()
-
-}
+function fontReset(){fontSize=16;applyFont()}
 
 function applyFont(){
 
@@ -453,7 +507,9 @@ localStorage.setItem("FONT_SIZE",fontSize)
 
 }
 
-renderHistory()
+loadTheme()
+
+renderPrompts()
 
 </script>
 
