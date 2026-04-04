@@ -5,82 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🐱☕ Purrtea - 像貓咪陪伴一樣溫暖的 AI 對話</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 
   <style>
     :root{
-      /* Purrtea 奶茶色系 */
-      --bg:#faf7f2;
-      --bg-2:#fdfbf8;
-      --sidebar:#f4ebdf;
-      --panel:#fffdf9;
-      --panel-2:#fff8f0;
-      --line:#eadfce;
-      --text:#5c4633;
-      --muted:#8b7562;
+      /* Purrtea 草莓奶茶色系 🍓🐾 */
+      --bg:#fff5f7;
+      --bg-2:#fffbfc;
+      --sidebar:#feeef2;
+      --panel:#fff9fb;
+      --panel-2:#fff0f4;
+      --line:#f5d6de;
+      --text:#5a3040;
+      --muted:#b07a8e;
 
-      /* 奶茶主色 */
-      --milktea:#D4A574;
-      --milktea-dark:#8B6F47;
-      --milktea-light:#E8C4A0;
+      /* 草莓奶茶主色 */
+      --milktea:#F4829C;
+      --milktea-dark:#C75A74;
+      --milktea-light:#F9ABBE;
       
       /* 貓咪粉紅（肉球色）*/
       --paw-pink:#FFB6C1;
       --paw-pink-light:#FFC9D0;
 
-      --accent:#D4A574;
-      --accent-2:#E8C4A0;
-      --accent-strong:#8B6F47;
+      --accent:#F4829C;
+      --accent-2:#F9ABBE;
+      --accent-strong:#C75A74;
 
-      --bubble-user:#D4A574;
-      --bubble-user-2:#8B6F47;
-      --bubble-ai:#fff5ea;
-      --bubble-ai-border:#eadccc;
+      --bubble-user:#F4829C;
+      --bubble-user-2:#d9607c;
+      --bubble-ai:#fff5f8;
+      --bubble-ai-border:#f5d6de;
 
-      --chip:#f8efe5;
-      --chip-active:#E8C4A0;
+      --chip:#feeef2;
+      --chip-active:#ffd6e0;
 
-      --input-bg:#fffaf4;
-      --shadow:0 16px 40px rgba(212, 165, 116, 0.15);
+      --input-bg:#fff9fb;
+      --shadow:0 16px 40px rgba(244, 130, 156, 0.13);
 
-      --danger:#d98e8b;
-      --danger-2:#e7a7a4;
+      --danger:#e07a8a;
+      --danger-2:#eda0ae;
     }
 
     body[data-theme="night"]{
-      --bg:#1d1714;
-      --bg-2:#241d19;
-      --sidebar:#2a211c;
-      --panel:#2f2520;
-      --panel-2:#352923;
-      --line:#47372d;
-      --text:#f7ece2;
-      --muted:#cfb8a4;
+      --bg:#1a1020;
+      --bg-2:#20152a;
+      --sidebar:#251830;
+      --panel:#2c1e38;
+      --panel-2:#332440;
+      --line:#4a2d52;
+      --text:#f8e8f0;
+      --muted:#c8a0be;
 
-      --milktea:#D4A574;
-      --milktea-dark:#8B6F47;
-      --milktea-light:#E8C4A0;
+      --milktea:#e87da0;
+      --milktea-dark:#c55c7e;
+      --milktea-light:#f0a0bc;
       
       --paw-pink:#FFB6C1;
       --paw-pink-light:#FFC9D0;
 
-      --accent:#D4A574;
-      --accent-2:#8e6542;
-      --accent-strong:#E8C4A0;
+      --accent:#e87da0;
+      --accent-2:#6b3560;
+      --accent-strong:#f0a0bc;
 
-      --bubble-user:#a9774a;
-      --bubble-user-2:#8d6038;
-      --bubble-ai:#3a2d26;
-      --bubble-ai-border:#4a3b32;
+      --bubble-user:#c05a7a;
+      --bubble-user-2:#a04060;
+      --bubble-ai:#2e1a30;
+      --bubble-ai-border:#4a2d52;
 
-      --chip:#382c25;
-      --chip-active:#5a4332;
+      --chip:#2e1a38;
+      --chip-active:#4a2d55;
 
-      --input-bg:#2b211c;
-      --shadow:0 18px 44px rgba(0,0,0,0.35);
+      --input-bg:#241530;
+      --shadow:0 18px 44px rgba(0,0,0,0.4);
 
-      --danger:#b6706c;
-      --danger-2:#8a4e4a;
+      --danger:#c06878;
+      --danger-2:#8a404e;
+    }
+
+
+    body[data-theme="electric"]{
+      --bg:#0b1220;
+      --bg-2:#0f172a;
+      --sidebar:#111c31;
+      --panel:#16233d;
+      --panel-2:#1b2b49;
+      --line:#294062;
+      --text:#eef4ff;
+      --muted:#a9bbd9;
+
+      --milktea:#3B82F6;
+      --milktea-dark:#1D4ED8;
+      --milktea-light:#6366F1;
+
+      --paw-pink:#A3E635;
+      --paw-pink-light:#BEF264;
+
+      --accent:#3B82F6;
+      --accent-2:#6366F1;
+      --accent-strong:#A3E635;
+
+      --bubble-user:#2563eb;
+      --bubble-user-2:#1d4ed8;
+      --bubble-ai:#15233b;
+      --bubble-ai-border:#294062;
+
+      --chip:#172742;
+      --chip-active:#22385d;
+
+      --input-bg:#13213a;
+      --shadow:0 18px 44px rgba(2,6,23,0.45);
+
+      --danger:#ef4444;
+      --danger-2:#dc2626;
     }
 
     *{ box-sizing:border-box; }
@@ -88,12 +128,12 @@
 
     body{
       margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-family:'Nunito',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.45), transparent 28%),
-        radial-gradient(circle at bottom right, rgba(212,165,116,0.08), transparent 22%),
-        linear-gradient(180deg, var(--bg-2), var(--bg));
+        radial-gradient(circle at top left, rgba(255,230,240,0.55), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(244,130,156,0.07), transparent 22%),
+        linear-gradient(160deg, var(--bg-2) 0%, #fff8fa 50%, var(--bg) 100%);
       display:flex;
       font-size:16px;
       overflow:hidden;
@@ -108,8 +148,8 @@
       right: 0;
       bottom: 0;
       background-image: 
-        radial-gradient(circle, rgba(212,165,116,0.03) 2px, transparent 2px),
-        radial-gradient(circle, rgba(212,165,116,0.02) 1px, transparent 1px);
+        radial-gradient(circle, rgba(244,130,156,0.06) 2px, transparent 2px),
+        radial-gradient(circle, rgba(255,182,193,0.04) 1px, transparent 1px);
       background-size: 100px 100px, 60px 60px;
       background-position: 0 0, 30px 30px;
       animation: float 20s linear infinite;
@@ -137,7 +177,7 @@
     .primary-btn{
       background:linear-gradient(135deg, var(--milktea), var(--milktea-light));
       color:white;
-      box-shadow:0 10px 24px rgba(212,165,116,0.25);
+      box-shadow:0 10px 24px rgba(244,130,156,0.28);
       font-weight:700;
     }
     .soft-btn{
@@ -210,7 +250,7 @@
     .chat-item.active{
       background:linear-gradient(180deg, var(--panel), var(--panel-2));
       border-color:var(--milktea-light);
-      box-shadow:0 10px 24px rgba(212,165,116,0.12);
+      box-shadow:0 10px 24px rgba(244,130,156,0.12);
     }
     .chat-item-title{
       font-size:0.96rem;
@@ -243,7 +283,7 @@
 
     #sidebar-footer{
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:repeat(4, 1fr);
       gap:8px;
     }
     #sidebar-footer .wide{ grid-column:1 / -1; }
@@ -338,11 +378,11 @@
     .prompt-btn.active{
       background:var(--chip-active);
       border-color:var(--milktea);
-      box-shadow:0 8px 18px rgba(212,165,116,0.15);
+      box-shadow:0 8px 18px rgba(244,130,156,0.18);
     }
     /* 語氣模式小圖示 */
     .prompt-btn.active::before{
-      content:'✨';
+      content:'🩷';
       position:absolute;
       top:-6px;
       right:-6px;
@@ -484,7 +524,7 @@
       width:6px;
       height:6px;
       border-radius:50%;
-      background:rgba(212,165,116,0.15);
+      background:rgba(244,130,156,0.12);
       animation:bubblePop 3s ease-in-out infinite;
     }
     @keyframes bubblePop {
@@ -875,7 +915,7 @@
   <div id="sidebar">
     <div id="brand-card">
       <div id="brand-top">🐱☕ Purrtea</div>
-      <div id="brand-sub">像貓咪陪伴一樣溫暖的 AI 對話<br>v1.0 · 軟呼呼 · 會做事喵</div>
+      <div id="brand-sub">像貓咪陪伴一樣溫暖的 AI 對話<br>v1.2 · 三套主題 · 會做事喵</div>
     </div>
 
     <button id="new-chat" class="primary-btn" onclick="newChat()">🐾 開新聊天</button>
@@ -885,6 +925,7 @@
     <div id="sidebar-footer">
       <button class="soft-btn" onclick="setTheme('latte')" title="奶茶模式">🧋</button>
       <button class="soft-btn" onclick="setTheme('night')" title="夜間模式">🌙</button>
+      <button class="soft-btn" onclick="setTheme('electric')" title="跳色模式">⚡</button>
       <button class="soft-btn" onclick="exportChat()" title="匯出對話">💾</button>
       <button class="soft-btn wide" onclick="toggleSettings()">⚙️ 設定</button>
     </div>
@@ -942,6 +983,10 @@
       <div class="field">
         <label for="apiKey" id="apiKeyLabel">API Key</label>
         <input id="apiKey" type="password" placeholder="貼上你的 API Key 喵" />
+      </div>
+
+      <div class="field">
+        <label><input id="rememberKey" type="checkbox" /> 記住 API Key（只限這台裝置）</label>
       </div>
 
       <div class="provider-note" id="providerNote"></div>
@@ -1010,15 +1055,24 @@
     };
 
     // ── 工具函式 ──────────────────────────────────────────
+    const SETTINGS_KEY = "PURRTEA_SETTINGS";
+    const SESSION_API_KEY = "PURRTEA_API_KEY_SESSION";
+    const CHAT_STORAGE_KEY = "CHATS_V2";
+    const CHAT_STORAGE_VERSION = 2;
+
     function createId(){
       return "id_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,9);
     }
 
-    function safeParse(key, fallback){
+    function safeParseStorage(storage, key, fallback){
       try{
-        const raw = localStorage.getItem(key);
+        const raw = storage.getItem(key);
         return raw ? JSON.parse(raw) : fallback;
       }catch(e){ return fallback; }
+    }
+
+    function safeParse(key, fallback){
+      return safeParseStorage(localStorage, key, fallback);
     }
 
     function normalizeStoredRole(role){
@@ -1028,31 +1082,89 @@
       return "user";
     }
 
-    function normalizeMessage(msg){
-      if (!msg || typeof msg !== "object") return { id:createId(), role:"user", text:"" };
+    function normalizeMessageItem(msg){
+      const now = new Date().toISOString();
+      if (!msg || typeof msg !== "object"){
+        return { id:createId(), role:"user", text:"", createdAt:now };
+      }
       return {
-        id:   msg.id   || createId(),
+        id: msg.id || createId(),
         role: normalizeStoredRole(msg.role),
-        text: typeof msg.text === "string" ? msg.text : ""
+        text: typeof msg.text === "string" ? msg.text : "",
+        createdAt: msg.createdAt || now
       };
     }
 
     function createEmptyChat(){
-      return { id:createId(), title:"", messages:[] };
+      const now = new Date().toISOString();
+      return {
+        version: CHAT_STORAGE_VERSION,
+        id: createId(),
+        title: "",
+        createdAt: now,
+        updatedAt: now,
+        messages: []
+      };
     }
 
     function normalizeChatItem(chat){
+      const now = new Date().toISOString();
+
       if (Array.isArray(chat)){
-        return { id:createId(), title:"", messages:chat.map(normalizeMessage) };
+        return {
+          version: CHAT_STORAGE_VERSION,
+          id: createId(),
+          title: "",
+          createdAt: now,
+          updatedAt: now,
+          messages: chat.map(normalizeMessageItem)
+        };
       }
+
       if (chat && typeof chat === "object"){
         return {
-          id:       chat.id || createId(),
-          title:    typeof chat.title === "string" ? chat.title : "",
-          messages: Array.isArray(chat.messages) ? chat.messages.map(normalizeMessage) : []
+          version: CHAT_STORAGE_VERSION,
+          id: chat.id || createId(),
+          title: typeof chat.title === "string" ? chat.title : "",
+          createdAt: chat.createdAt || now,
+          updatedAt: chat.updatedAt || now,
+          messages: Array.isArray(chat.messages) ? chat.messages.map(normalizeMessageItem) : []
         };
       }
       return createEmptyChat();
+    }
+
+    function loadSettings(){
+      const s = safeParse(SETTINGS_KEY, null) || {};
+      return {
+        apiProvider: s.apiProvider || localStorage.getItem("API_PROVIDER") || "openrouter",
+        modelName: s.modelName || localStorage.getItem("MODEL_NAME") || "openai/gpt-4o",
+        rememberKey: !!s.rememberKey
+      };
+    }
+
+    function loadApiKey(settings){
+      const sessionKey = sessionStorage.getItem(SESSION_API_KEY);
+      if (sessionKey) return sessionKey;
+
+      const oldKey = localStorage.getItem("OPENAI_KEY") || "";
+      if (oldKey){
+        sessionStorage.setItem(SESSION_API_KEY, oldKey);
+        if (!settings.rememberKey) localStorage.removeItem("OPENAI_KEY");
+        return oldKey;
+      }
+      return "";
+    }
+
+    function loadChats(){
+      const raw = safeParse(CHAT_STORAGE_KEY, null) || safeParse("CHATS", null);
+      const list = Array.isArray(raw) ? raw : [createEmptyChat()];
+      return list.map(normalizeChatItem);
+    }
+
+    function markCurrentChatUpdated(){
+      const chat = getCurrentChat();
+      if (chat) chat.updatedAt = new Date().toISOString();
     }
 
     // ── 狀態 ──────────────────────────────────────────────
@@ -1062,12 +1174,15 @@
       "吐槽":"你是一個毒舌 AI，喜歡吐槽，但仍然會回答問題。"
     };
 
-    let API_PROVIDER = localStorage.getItem("API_PROVIDER") || "openrouter";
-    let API_KEY      = localStorage.getItem("OPENAI_KEY")   || "";
-    let MODEL_NAME   = localStorage.getItem("MODEL_NAME")   || "openai/gpt-4o";
+    const settings = loadSettings();
+
+    let API_PROVIDER = settings.apiProvider;
+    let API_KEY      = loadApiKey(settings);
+    let MODEL_NAME   = settings.modelName;
+    let REMEMBER_KEY = settings.rememberKey;
     let PROMPTS      = safeParse("PROMPTS", null) || DEFAULT_PROMPTS;
     let currentPrompt= localStorage.getItem("CURRENT_PROMPT") || Object.keys(PROMPTS)[0] || "";
-    let chats        = (safeParse("CHATS", null) || [createEmptyChat()]).map(normalizeChatItem);
+    let chats        = loadChats();
     let currentChat  = Number(localStorage.getItem("CURRENT_CHAT") || 0);
     let fontSize     = Number(localStorage.getItem("FONT_SIZE") || 16);
     let isSending    = false;
@@ -1078,8 +1193,13 @@
 
     // ── 存檔 ──────────────────────────────────────────────
     function saveChats(){
-      localStorage.setItem("CHATS", JSON.stringify(chats));
-      localStorage.setItem("CURRENT_CHAT", String(currentChat));
+      try{
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chats));
+        localStorage.setItem("CURRENT_CHAT", String(currentChat));
+      }catch(err){
+        console.error("saveChats failed:", err);
+        showToast("聊天太多了，儲存空間快滿了喵");
+      }
     }
     function savePrompts(){
       localStorage.setItem("PROMPTS", JSON.stringify(PROMPTS));
@@ -1099,7 +1219,8 @@
     function normalizeTheme(t){
       if (t==="pink") return "latte";
       if (t==="dark") return "night";
-      return (t==="latte"||t==="night") ? t : "latte";
+      if (t==="blue") return "electric";
+      return (t==="latte"||t==="night"||t==="electric") ? t : "latte";
     }
     function setTheme(t){
       const ft = normalizeTheme(t);
@@ -1145,7 +1266,8 @@
       if (isOpen){ overlay.style.display = "none"; return; }
 
       document.getElementById("apiProvider").value = API_PROVIDER;
-      document.getElementById("apiKey").value      = API_KEY;
+      document.getElementById("apiKey").value = API_KEY;
+      document.getElementById("rememberKey").checked = REMEMBER_KEY;
       document.getElementById("providerNote").textContent = PROVIDER_NOTES[API_PROVIDER] || "";
       buildModelSelect(API_PROVIDER);
 
@@ -1154,7 +1276,7 @@
         if (opt.value === MODEL_NAME){ opt.selected = true; break; }
       }
 
-      document.getElementById("promptEditor").value       = PROMPTS[currentPrompt] || "";
+      document.getElementById("promptEditor").value = PROMPTS[currentPrompt] || "";
       document.getElementById("currentPromptName").textContent = currentPrompt || "未選擇";
       overlay.style.display = "flex";
     }
@@ -1176,10 +1298,24 @@
       API_PROVIDER = document.getElementById("apiProvider").value;
       API_KEY      = document.getElementById("apiKey").value.trim();
       MODEL_NAME   = document.getElementById("modelName").value;
+      REMEMBER_KEY = !!document.getElementById("rememberKey").checked;
+
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+        apiProvider: API_PROVIDER,
+        modelName: MODEL_NAME,
+        rememberKey: REMEMBER_KEY
+      }));
+
+      sessionStorage.setItem(SESSION_API_KEY, API_KEY);
+
+      if (REMEMBER_KEY){
+        localStorage.setItem("OPENAI_KEY", API_KEY);
+      } else {
+        localStorage.removeItem("OPENAI_KEY");
+      }
 
       localStorage.setItem("API_PROVIDER", API_PROVIDER);
-      localStorage.setItem("OPENAI_KEY",   API_KEY);
-      localStorage.setItem("MODEL_NAME",   MODEL_NAME);
+      localStorage.setItem("MODEL_NAME", MODEL_NAME);
 
       updateModelBadge();
       showToast("API / 模型 已儲存喵 ✨");
@@ -1329,6 +1465,22 @@
       input.focus();
     }
 
+    function renderMarkdownSafe(text){
+      if (typeof marked === "undefined") return text || "";
+
+      const rawHtml = marked.parse(text || "", {
+        breaks: true,
+        gfm: true
+      });
+
+      if (typeof DOMPurify === "undefined") return rawHtml;
+
+      return DOMPurify.sanitize(rawHtml, {
+        USE_PROFILES: { html: true },
+        ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+      });
+    }
+
     function renderSingleMessage(message, thinking=false){
       const chatBox = document.getElementById("chat");
       const uiRole  = message.role==="assistant" ? "assistant" : "user";
@@ -1360,7 +1512,7 @@
       bubble.className = "bubble";
 
       if (!thinking && typeof marked !== "undefined"){
-        bubble.innerHTML = marked.parse(message.text || "");
+        bubble.innerHTML = renderMarkdownSafe(message.text || "");
       } else {
         bubble.textContent = message.text;
       }
@@ -1416,7 +1568,14 @@
     }
 
     function addMessage(text, role){
-      getCurrentChat().messages.push({ id:createId(), role:normalizeStoredRole(role), text });
+      const chat = getCurrentChat();
+      chat.messages.push({
+        id:createId(),
+        role:normalizeStoredRole(role),
+        text,
+        createdAt:new Date().toISOString()
+      });
+      markCurrentChatUpdated();
       saveChats();
       renderCurrentChat();
     }
@@ -1499,6 +1658,7 @@
 
     function clearChat(){
       chats[currentChat].messages = [];
+      chats[currentChat].updatedAt = new Date().toISOString();
       saveChats();
       renderCurrentChat();
       showToast("目前聊天已清空喵 🗑️");
@@ -1510,6 +1670,7 @@
       const next = window.prompt("聊天室名稱\n留空可恢復自動命名", cur);
       if (next === null) return;
       chat.title = next.trim();
+      chat.updatedAt = new Date().toISOString();
       saveChats();
       renderCurrentChat();
     }
@@ -1521,6 +1682,7 @@
       if (!chat.messages.find(m => m.id===messageId)) return;
       if (!window.confirm("要刪掉這則訊息嗎喵？")) return;
       chat.messages = chat.messages.filter(m => m.id!==messageId);
+      chat.updatedAt = new Date().toISOString();
       saveChats();
       renderCurrentChat();
     }
@@ -1641,11 +1803,35 @@
     }
 
     // ── 事件 ──────────────────────────────────────────────
+    const inputEl = document.getElementById("input");
+
+    function isMobileDevice() {
+      return window.matchMedia("(max-width: 720px)").matches ||
+             /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    function updateInputHint() {
+      const hint = document.getElementById("input-hint");
+      if (!hint) return;
+      hint.textContent = isMobileDevice()
+        ? "Enter 換行 · 點🐾送出"
+        : "Enter 送出 · Shift + Enter 換行";
+    }
+
     document.getElementById("send").onclick = send;
-    document.getElementById("input").addEventListener("input", autoResizeTextarea);
-    document.getElementById("input").addEventListener("keydown", (e) => {
-      if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); }
+    inputEl.addEventListener("input", autoResizeTextarea);
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+
+      if (isMobileDevice()) return;
+
+      if (!e.shiftKey){
+        e.preventDefault();
+        send();
+      }
     });
+
+    window.addEventListener("resize", updateInputHint);
 
     // ── 初始化 ────────────────────────────────────────────
     function init(){
@@ -1655,6 +1841,7 @@
       updateModelBadge();
       renderCurrentChat();
       autoResizeTextarea();
+      updateInputHint();
       saveChats();
     }
 
